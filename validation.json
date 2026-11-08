@@ -81,9 +81,9 @@
     "serial_port": "COM3",
     "board": "DOIT ESP32 DEVKIT V1",
     "sensor_enabled": false,
-    "cloud_enabled": false,
+    "cloud_enabled": true,
     "observed": "Hash of data verified; Hard resetting via RTS pin",
-    "button_hardware_test": "awaiting button presses"
+    "button_hardware_test": "GPIO5 remained HIGH both released and while BUTTON2 was held; wiring/module inspection pending"
   },
   "local_stage_compile": {
     "status": "passed",
@@ -99,5 +99,13 @@
     "status": "online_observed",
     "sensor_enabled": false,
     "credentials": "local ignored secrets.h only"
+  },
+  "online_profile_compile": {
+    "status": "passed",
+    "cloud_enabled": true,
+    "sensor_enabled": false,
+    "flash_bytes": 917671,
+    "global_ram_bytes": 48188,
+    "board": "DOIT ESP32 DEVKIT V1"
   }
 }

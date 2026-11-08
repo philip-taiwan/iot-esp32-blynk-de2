@@ -107,6 +107,8 @@ Dòng trên là **ví dụ định dạng**, không phải dữ liệu đo đư�
 
 ## 6 Cấu hình và nạp
 
+Để tạm bỏ qua hai nút vật lý khi làm phần Blynk và cảm biến, thêm `#define IOT_ENABLE_BUTTONS 0` vào `secrets.h` cục bộ. Cấu hình mẫu mặc định là `1` để sử dụng nút khi phần cứng đã sẵn sàng.
+
 1. Cài Arduino IDE, core **esp32 by Espressif Systems 3.3.12** và thư viện **Blynk 1.4.0**.
 2. Mở `firmware/IoT_ESP32/IoT_ESP32.ino`.
 3. Sao chép `secrets.example.h` thành `secrets.h` trong cùng thư mục.

@@ -10,6 +10,9 @@
 #include <BlynkSimpleEsp32.h>
 #include "Controller.h"
 #include "ButtonDebouncer.h"
+#ifndef IOT_ENABLE_BUTTONS
+#define IOT_ENABLE_BUTTONS 1
+#endif
 
 constexpr uint8_t LED_RED = 22;
 constexpr uint8_t LED_YELLOW = 21;
@@ -213,7 +216,7 @@ void loop() {
   controller.tick(millis());
   portEXIT_CRITICAL(&controllerMux);
 
-  if (button1.pressed(now)) {
+  if (IOT_ENABLE_BUTTONS && button1.pressed(now)) {
     portENTER_CRITICAL(&controllerMux);
     controller.setAutomatic(!controller.automatic(), millis());
     const bool automatic = controller.automatic();
@@ -221,7 +224,7 @@ void loop() {
     Serial.printf("[BUTTON1] uptime_ms=%lu mode=%s\n",
                   static_cast<unsigned long>(millis()), automatic ? "AUTO" : "MANUAL");
   }
-  if (button2.pressed(now)) {
+  if (IOT_ENABLE_BUTTONS && button2.pressed(now)) {
     portENTER_CRITICAL(&controllerMux);
     controller.setPair(!controller.manualPair(), millis());
     const bool pairOn = controller.manualPair();

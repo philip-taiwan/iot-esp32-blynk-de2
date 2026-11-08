@@ -1,0 +1,34 @@
+# Local credentials and generated firmware/build files
+**/secrets.h
+**/build/
+**/.pio/
+**/*.bin
+**/*.elf
+**/*.map
+tests/*.exe
+tests/*.obj
+tests/*.pdb
+tests/*.ilk
+*.log
+.DS_Store
+Thumbs.db
+
+# Submission documents and document-generation/QA intermediates remain local.
+*.docx
+*.pdf
+output/
+qa/
+tmp/
+report_build/
+reports/
+
+# Local submission authoring data and screenshots are not part of public code.
+/docs/report_metadata.json
+/docs/build_report.py
+/docs/export_report.ps1
+/docs/render_pdf.py
+/docs/qa_render/
+/docs/assets/mach_thuc_te.png
+/docs/assets/blynk_dashboard.jpg
+/docs/assets/blynk_datastreams.jpg
+/docs/assets/github_repository.jpg

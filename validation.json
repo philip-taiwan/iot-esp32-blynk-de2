@@ -1,0 +1,65 @@
+{
+  "validation_date": "2026-11-08",
+  "timezone": "Asia/Bangkok",
+  "firmware": "firmware/IoT_ESP32/IoT_ESP32.ino",
+  "toolchain": {
+    "arduino_cli": "1.5.1",
+    "fqbn": "esp32:esp32:esp32",
+    "esp32_core": "3.3.12",
+    "blynk_library": "1.4.0"
+  },
+  "final_compile": {
+    "status": "passed",
+    "cloud_branch_enabled_for_compile": true,
+    "extra_build_property": "compiler.cpp.extra_flags=-DIOT_ENABLE_CLOUD=1",
+    "credentials": "placeholder values only; build does not contact Wi-Fi or Blynk",
+    "flash_bytes": 918887,
+    "flash_limit_bytes": 1310720,
+    "global_ram_bytes": 48204,
+    "ram_limit_bytes": 327680,
+    "dynamic_ram_remaining_bytes": 279476
+  },
+  "host_tests": {
+    "status": "passed",
+    "compiler": "MSVC 14.44.35207 x64 C++17",
+    "command": "tests\\run_tests.cmd",
+    "test_groups": [
+      "LED sequence and 400 ms boundaries",
+      "Strict thresholds 9.9, 10, 14.9 and 15 cm",
+      "Critical and proximity output priority",
+      "Freeze and resume the remaining automatic phase",
+      "Invalid or missing echo retains existing alarm and lock",
+      "Reject manual LED1 commands while critical",
+      "Unsigned millis rollover",
+      "Catch up phase after delayed polling"
+    ],
+    "group_count": 8,
+    "output": "PASS: sequence, timing, strict thresholds, priority, pause/resume, invalid echo, lock, rollover."
+  },
+  "standalone_hardware_evidence": {
+    "sketch": "firmware/YeuCau2_LED/YeuCau2_LED.ino",
+    "sha256": "00908ea4019f6c987dd2568b0f2bfff0e313b91cebcfc65a4c8f503b3f64b66b",
+    "reported_serial_port": "COM3",
+    "upload_result_observed_in_ide": "Hash of data verified; Hard resetting via RTS pin",
+    "scope": "Standalone requirement 2 LED scanner only"
+  },
+  "integration_hardware_tests": {
+    "status": "not_performed",
+    "pending": [
+      "HC-SR04 measurements and threshold response on the physical circuit",
+      "Both physical buttons and debounce",
+      "Blynk web and mobile control with the integrated firmware online",
+      "Physical network disconnection and sensor echo loss tests"
+    ]
+  },
+  "design_timing": {
+    "led_step_ms": 400,
+    "sensor_period_ms": 100,
+    "echo_timeout_us": 25000,
+    "telemetry_period_ms": 1000,
+    "button_debounce_ms": 30,
+    "critical_threshold_cm_strict_less_than": 10,
+    "proximity_threshold_cm_strict_less_than": 15,
+    "timings_are_design_values_not_measured_latency": true
+  }
+}

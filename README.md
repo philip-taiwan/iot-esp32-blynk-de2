@@ -103,6 +103,8 @@ Mỗi lần đi vào vùng <10 cm tạo một bản ghi với thời gian tính 
 
 Dòng trên là **ví dụ định dạng**, không phải dữ liệu đo được của bài thực hành. Bộ đệm vòng lưu 16 sự kiện gần nhất trong RAM. Gửi ký tự `L` trong Serial Monitor 115200 baud để in bộ đệm. Dữ liệu RAM mất sau khi reset; dấu thời gian là uptime, không phải giờ lịch.
 
+Để kiểm tra dây tín hiệu nút, gửi ký tự `D` trong Serial Monitor 115200 baud. Firmware in mức đọc GPIO19/GPIO5 và mức nghỉ đã nhận mỗi 250 ms; gửi `D` lần nữa để dừng. Hai module cần được thả khi reset; chương trình chờ 100 ms cho đầu ra ổn định trước khi nhận mức nghỉ.
+
 ## 6 Cấu hình và nạp
 
 1. Cài Arduino IDE, core **esp32 by Espressif Systems 3.3.12** và thư viện **Blynk 1.4.0**.

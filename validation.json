@@ -94,5 +94,10 @@
     "global_ram_bytes": 31532,
     "dynamic_ram_remaining_bytes": 296148,
     "credentials": "placeholders only"
+  },
+  "blynk_connection": {
+    "status": "online_observed",
+    "sensor_enabled": false,
+    "credentials": "local ignored secrets.h only"
   }
 }

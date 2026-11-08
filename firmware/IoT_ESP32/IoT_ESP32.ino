@@ -181,6 +181,7 @@ void setup() {
   pinMode(LED_GREEN, OUTPUT);
   pinMode(BUTTON1, INPUT_PULLUP);
   pinMode(BUTTON2, INPUT_PULLUP);
+  delay(100);  // Allow module outputs and pull resistors to settle before calibration.
   button1.begin();
   button2.begin();
   pinMode(HC_TRIG, OUTPUT);
@@ -237,9 +238,18 @@ void loop() {
   }
 #endif
   applyOutputs();
+  static bool inputDiagnostics = false;
+  static uint32_t lastInputDiagnosticMs = 0;
   if (Serial.available()) {
     const char command = Serial.read();
     if (command == 'L' || command == 'l') dumpEventLog();
+    if (command == 'D' || command == 'd') inputDiagnostics = !inputDiagnostics;
+  }
+  if (inputDiagnostics && static_cast<uint32_t>(now - lastInputDiagnosticMs) >= 250) {
+    lastInputDiagnosticMs = now;
+    Serial.printf("[INPUT] GPIO19=%d idle=%d GPIO5=%d idle=%d\n",
+                  digitalRead(BUTTON1), button1.state.idleLevel(),
+                  digitalRead(BUTTON2), button2.state.idleLevel());
   }
   delay(1);
 }

@@ -32,3 +32,6 @@ reports/
 /docs/assets/blynk_dashboard.jpg
 /docs/assets/blynk_datastreams.jpg
 /docs/assets/github_repository.jpg
+/docs/build_report_compact.py
+/docs/qa_render_compact/
+/docs/report_qa_compact.json

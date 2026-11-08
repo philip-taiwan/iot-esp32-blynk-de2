@@ -2,10 +2,34 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "../firmware/IoT_ESP32/Controller.h"
+#include "../firmware/IoT_ESP32/ButtonDebouncer.h"
 
 static void expect(const LedController& c, bool r, bool y, bool g) {
   const LedOutput value = c.output();
   assert(value.red == r && value.yellow == y && value.green == g);
+}
+
+static void testButton(bool idleLevel) {
+  ButtonDebouncer button;
+  button.begin(idleLevel, 0);
+  assert(button.idleLevel() == idleLevel);
+  assert(!button.update(idleLevel, 100));
+  assert(!button.update(!idleLevel, 110));
+  assert(!button.update(idleLevel, 115));  // contact bounce
+  assert(!button.update(!idleLevel, 120));
+  assert(!button.update(!idleLevel, 149));
+  assert(button.update(!idleLevel, 150));  // one event after stable 30 ms
+  assert(!button.update(!idleLevel, 300)); // holding does not repeat
+  assert(!button.update(idleLevel, 310));
+  assert(!button.update(idleLevel, 340));  // release is not a press
+  assert(!button.update(!idleLevel, 350));
+  assert(button.update(!idleLevel, 380));  // a second press is detected
+
+  ButtonDebouncer rollover;
+  rollover.begin(idleLevel, UINT32_MAX - 100U);
+  assert(!rollover.update(!idleLevel, UINT32_MAX - 9U));
+  assert(!rollover.update(!idleLevel, 19U));
+  assert(rollover.update(!idleLevel, 20U));
 }
 
 int main() {
@@ -66,6 +90,8 @@ int main() {
   assert(late.state() == 0 && late.phaseMs() == 0);
   late.tick(3210);
   assert(late.state() == 3);
-  puts("PASS: sequence, timing, strict thresholds, priority, pause/resume, invalid echo, lock, rollover.");
+  testButton(true);   // released HIGH, pressed LOW
+  testButton(false);  // released LOW, pressed HIGH
+  puts("PASS: 10 groups: sequence, timing, thresholds, priority, pause/resume, invalid echo, lock, rollover/catch-up, active-LOW button, active-HIGH button.");
   return 0;
 }

@@ -11,13 +11,14 @@
   "final_compile": {
     "status": "passed",
     "cloud_branch_enabled_for_compile": true,
-    "extra_build_property": "compiler.cpp.extra_flags=-DIOT_ENABLE_CLOUD=1",
-    "credentials": "placeholder values only; build does not contact Wi-Fi or Blynk",
-    "flash_bytes": 918887,
+    "sensor_enabled_for_compile": true,
+    "extra_build_property": "compiler.cpp.extra_flags=-DIOT_ENABLE_CLOUD=1 -DIOT_ENABLE_SENSOR=1",
+    "credentials": "placeholder values only",
+    "flash_bytes": 919423,
     "flash_limit_bytes": 1310720,
-    "global_ram_bytes": 48204,
+    "global_ram_bytes": 48220,
     "ram_limit_bytes": 327680,
-    "dynamic_ram_remaining_bytes": 279476
+    "dynamic_ram_remaining_bytes": 279460
   },
   "host_tests": {
     "status": "passed",
@@ -31,10 +32,12 @@
       "Invalid or missing echo retains existing alarm and lock",
       "Reject manual LED1 commands while critical",
       "Unsigned millis rollover",
-      "Catch up phase after delayed polling"
+      "Catch up phase after delayed polling",
+      "Active-LOW module debounce, held press, release and rollover",
+      "Active-HIGH module debounce, held press, release and rollover"
     ],
-    "group_count": 8,
-    "output": "PASS: sequence, timing, strict thresholds, priority, pause/resume, invalid echo, lock, rollover."
+    "group_count": 10,
+    "output": "PASS: 10 groups including active-LOW and active-HIGH module buttons."
   },
   "standalone_hardware_evidence": {
     "sketch": "firmware/YeuCau2_LED/YeuCau2_LED.ino",
@@ -61,5 +64,35 @@
     "critical_threshold_cm_strict_less_than": 10,
     "proximity_threshold_cm_strict_less_than": 15,
     "timings_are_design_values_not_measured_latency": true
+  },
+  "previous_revision_full_compile": {
+    "status": "passed",
+    "cloud_branch_enabled_for_compile": true,
+    "extra_build_property": "compiler.cpp.extra_flags=-DIOT_ENABLE_CLOUD=1",
+    "credentials": "placeholder values only; build does not contact Wi-Fi or Blynk",
+    "flash_bytes": 918887,
+    "flash_limit_bytes": 1310720,
+    "global_ram_bytes": 48204,
+    "ram_limit_bytes": 327680,
+    "dynamic_ram_remaining_bytes": 279476
+  },
+  "integrated_local_upload": {
+    "status": "passed",
+    "serial_port": "COM3",
+    "board": "DOIT ESP32 DEVKIT V1",
+    "sensor_enabled": false,
+    "cloud_enabled": false,
+    "observed": "Hash of data verified; Hard resetting via RTS pin",
+    "button_hardware_test": "awaiting button presses"
+  },
+  "local_stage_compile": {
+    "status": "passed",
+    "profile": "LEDs and 3-pin button modules",
+    "cloud_enabled": false,
+    "sensor_enabled": false,
+    "flash_bytes": 386996,
+    "global_ram_bytes": 31532,
+    "dynamic_ram_remaining_bytes": 296148,
+    "credentials": "placeholders only"
   }
 }

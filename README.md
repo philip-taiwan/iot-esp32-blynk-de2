@@ -9,6 +9,7 @@ Repository công khai: <https://github.com/philip-taiwan/iot-esp32-blynk-de2>. M
 - `firmware/IoT_ESP32/IoT_ESP32.ino`: chương trình ESP32 tích hợp.
 - `firmware/YeuCau2_LED/YeuCau2_LED.ino`: bản quét 3 LED độc lập đã nạp thành công trong buổi thực hành.
 - `firmware/IoT_ESP32/Controller.h`: thuật toán điều khiển dùng chung cho firmware và kiểm thử.
+- `firmware/IoT_ESP32/ButtonDebouncer.h`: chống dội và nhận mức nhấn của module nút active HIGH hoặc active LOW.
 - `firmware/IoT_ESP32/secrets.example.h`: cấu hình mẫu không chứa mật khẩu hoặc token thực.
 - `tests/controller_tests.cpp`: kiểm thử logic C++ trên máy tính.
 - `tests/run_tests.cmd`: biên dịch và chạy kiểm thử bằng MSVC.
@@ -22,8 +23,10 @@ Repository công khai: <https://github.com/philip-taiwan/iot-esp32-blynk-de2>. M
 | LED vàng LED2 chân Y | GPIO21 | Module LED kích mức HIGH |
 | LED xanh LED3 chân G | GPIO18 | G trên module là xanh, không phải mass |
 | Module LED chân GND | GND | Mass chung với ESP32 |
-| BUTTON1 | GPIO19 | Nút nối giữa GPIO19 và GND, INPUT_PULLUP |
-| BUTTON2 | GPIO5 | Nút nối giữa GPIO5 và GND, INPUT_PULLUP |
+| BUTTON1 chân OUT hoặc S | GPIO19 | Module nút nhấn 3 chân |
+| BUTTON2 chân OUT hoặc S | GPIO5 | Module nút nhấn 3 chân |
+| VCC của hai module nút | 3V3 | Cấp 3,3V để OUT tương thích mức điện áp ESP32 |
+| GND của hai module nút | GND | Mass chung với ESP32 |
 | HC-SR04 VCC | 5V | Nguồn 5V và mass chung |
 | HC-SR04 GND | GND | Mass chung |
 | HC-SR04 TRIG | GPIO23 | Xung kích 10 micro giây |
@@ -90,7 +93,7 @@ Blynk và Wi-Fi chạy trong task FreeRTOS riêng trên core 0 của ESP32 hai n
 - BUTTON1: chuyển giữa tự động và thủ công.
 - BUTTON2: bật hoặc tắt đồng thời LED vàng và xanh, đồng thời chọn thủ công.
 
-Cả hai nút chống dội bằng `millis()` trong 30 ms. Ưu tiên cảnh báo được áp dụng sau lệnh nút nhấn.
+Cả hai nút chống dội bằng `millis()` trong 30 ms. Khi khởi động, firmware lấy mức OUT lúc nút được thả làm mức nghỉ, rồi coi mức đối lập là nhấn; cách này hỗ trợ module active HIGH và active LOW. **Thả cả hai nút trước khi reset hoặc cấp nguồn** để hiệu chuẩn đúng. GPIO được cấu hình INPUT_PULLUP; module có điện trở kéo xuống bên trong vẫn có thể tạo mức nghỉ LOW. Serial Monitor in mức nghỉ và mức tác động đã nhận. Ưu tiên cảnh báo được áp dụng sau lệnh nút nhấn.
 
 Mỗi lần đi vào vùng <10 cm tạo một bản ghi với thời gian tính từ lúc ESP32 reset, đơn vị mili giây:
 
@@ -111,6 +114,8 @@ Dòng trên là **ví dụ định dạng**, không phải dữ liệu đo đư�
 
 Mặc định `IOT_ENABLE_CLOUD = 0`: chương trình vẫn biên dịch và chạy phần cục bộ mà không cố kết nối bằng thông tin mẫu. Không cần tạo `secrets.h` để biên dịch kiểm tra.
 
+Khi mới đấu LED và hai nút, đặt `IOT_ENABLE_SENSOR = 0` trong `secrets.h` cục bộ để không đọc chân ECHO đang chưa nối. Khi HC-SR04 và cầu chia áp đã đấu xong, đổi giá trị này thành `1` để bật đo và cảnh báo; cấu hình mẫu công khai mặc định bật cảm biến. Serial Monitor in trạng thái cảm biến lúc khởi động và các dòng `[BUTTON1] mode=AUTO/MANUAL`, `[BUTTON2] pair=ON/OFF` sau mỗi lần nhấn đã chống dội.
+
 **Giới hạn dữ liệu lỗi:** V1 không được cập nhật khi không có phép đo hợp lệ, vì vậy Blynk có thể hiển thị giá trị hợp lệ cũ. Khi thử nghiệm cần theo dõi trạng thái kết nối và phép đo thực tế; việc giữ cảnh báo cũ là chủ ý để một lần mất echo không tự giải phóng khóa.
 
 ## 7 Kiểm chứng và phạm vi thực nghiệm
@@ -130,7 +135,7 @@ g++ -std=c++17 tests/controller_tests.cpp -o controller_tests
 ./controller_tests
 ```
 
-Các nhóm kiểm thử: chuỗi LED và biên 400 ms; ngưỡng 9,9/10/14,9/15 cm; ưu tiên cảnh báo; dừng và phục hồi pha quét; mất echo; từ chối lệnh đỏ khi khóa; tràn `millis()`; bắt kịp pha khi vòng lặp bị trễ.
+Các nhóm kiểm thử: chuỗi LED và biên 400 ms; ngưỡng 9,9/10/14,9/15 cm; ưu tiên cảnh báo; dừng và phục hồi pha quét; mất echo; từ chối lệnh đỏ khi khóa; tràn `millis()`; bắt kịp pha khi vòng lặp bị trễ; nút active LOW; nút active HIGH. Hai nhóm nút kiểm tra dội tiếp điểm, chỉ tạo một sự kiện khi giữ nút, không tạo sự kiện nhấn lúc thả và xử lý tràn thời gian.
 
 Kịch bản kiểm tra trên mạch đầy đủ: giữ vật ở >=15 cm, 10–<15 cm và <10 cm; thử V4 trong khi nguy hiểm; đưa vật ra xa; thử V0/V5 và hai nút; ngắt Wi-Fi; thử mất echo; kiểm tra log và phản hồi giao diện.
 

@@ -9,6 +9,7 @@
 #include <WiFi.h>
 #include <BlynkSimpleEsp32.h>
 #include "Controller.h"
+#include "ButtonDebouncer.h"
 
 constexpr uint8_t LED_RED = 22;
 constexpr uint8_t LED_YELLOW = 21;
@@ -37,21 +38,12 @@ size_t eventCount = 0;
 
 struct DebouncedButton {
   uint8_t pin;
-  bool previousRaw = HIGH;
-  bool stable = HIGH;
-  uint32_t changedMs = 0;
+  ButtonDebouncer state;
+
+  void begin() { state.begin(digitalRead(pin), millis()); }
 
   bool pressed(uint32_t now) {
-    const bool raw = digitalRead(pin);
-    if (raw != previousRaw) {
-      previousRaw = raw;
-      changedMs = now;
-    }
-    if (raw != stable && static_cast<uint32_t>(now - changedMs) >= 30) {
-      stable = raw;
-      return stable == LOW;
-    }
-    return false;
+    return state.update(digitalRead(pin), now);
   }
 };
 
@@ -189,12 +181,25 @@ void setup() {
   pinMode(LED_GREEN, OUTPUT);
   pinMode(BUTTON1, INPUT_PULLUP);
   pinMode(BUTTON2, INPUT_PULLUP);
+  button1.begin();
+  button2.begin();
   pinMode(HC_TRIG, OUTPUT);
   pinMode(HC_ECHO, INPUT);
   digitalWrite(HC_TRIG, LOW);
   controller.begin(millis());
   applyOutputs();
   Serial.println("[START] De 2; LED states 0..4 at 400 ms; critical<10 cm; alarm<15 cm.");
+  Serial.println("[BUTTONS] Release both buttons before reset for idle-level calibration.");
+  Serial.printf("[BUTTONS] BUTTON1 idle=%s active=%s; BUTTON2 idle=%s active=%s\n",
+                button1.state.idleLevel() ? "HIGH" : "LOW",
+                button1.state.idleLevel() ? "LOW" : "HIGH",
+                button2.state.idleLevel() ? "HIGH" : "LOW",
+                button2.state.idleLevel() ? "LOW" : "HIGH");
+#if IOT_ENABLE_SENSOR
+  Serial.println("[SENSOR] HC-SR04 enabled; sample period 100 ms.");
+#else
+  Serial.println("[SENSOR] Disabled for current hardware stage; LEDs and buttons only.");
+#endif
   Serial.println("[SERIAL] Send L to print the 16-entry critical event buffer.");
   const BaseType_t result = xTaskCreatePinnedToCore(networkTask, "blynk", 8192,
                                                  nullptr, 1, nullptr, 0);
@@ -210,19 +215,27 @@ void loop() {
   if (button1.pressed(now)) {
     portENTER_CRITICAL(&controllerMux);
     controller.setAutomatic(!controller.automatic(), millis());
+    const bool automatic = controller.automatic();
     portEXIT_CRITICAL(&controllerMux);
+    Serial.printf("[BUTTON1] uptime_ms=%lu mode=%s\n",
+                  static_cast<unsigned long>(millis()), automatic ? "AUTO" : "MANUAL");
   }
   if (button2.pressed(now)) {
     portENTER_CRITICAL(&controllerMux);
     controller.setPair(!controller.manualPair(), millis());
+    const bool pairOn = controller.manualPair();
     portEXIT_CRITICAL(&controllerMux);
+    Serial.printf("[BUTTON2] uptime_ms=%lu pair=%s mode=MANUAL\n",
+                  static_cast<unsigned long>(millis()), pairOn ? "ON" : "OFF");
   }
 
+#if IOT_ENABLE_SENSOR
   static uint32_t lastSensorMs = millis() - SENSOR_PERIOD_MS;
   if (static_cast<uint32_t>(now - lastSensorMs) >= SENSOR_PERIOD_MS) {
     lastSensorMs = now;
     sampleDistance();
   }
+#endif
   applyOutputs();
   if (Serial.available()) {
     const char command = Serial.read();
